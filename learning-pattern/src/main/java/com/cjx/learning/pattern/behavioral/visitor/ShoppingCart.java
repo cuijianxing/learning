@@ -1,4 +1,4 @@
-package com.cjx.learning.visitor;
+package com.cjx.learning.pattern.behavioral.visitor;
 
 import java.util.ArrayList;
 
