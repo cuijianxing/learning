@@ -7,10 +7,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>learning-pattern</artifactId>
+    <artifactId>learning-io</artifactId>
     <packaging>jar</packaging>
 
-    <name>learning-pattern</name>
+    <name>learning-io</name>
     <url>http://maven.apache.org</url>
 
     <properties>
