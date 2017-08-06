@@ -10,7 +10,6 @@
         <module>learning-pattern</module>
         <module>learning-concurrent</module>
         <module>learning-jdk</module>
-        <module>learning-io</module>
         <module>learning-hbase</module>
         <module>learning-zk</module>
         <module>learning-netty</module>

@@ -1,0 +1,16 @@
+@startuml
+
+interface Product
+class ConcreteProduct
+Product <|.. ConcreteProduct
+abstract Creator{
++ Product factoryMethod()
++ void anOperation()
+}
+class ConcreteCreator{
++ Product factoryMethod()
+}
+Creator <|-- ConcreteCreator
+ConcreteProduct <. ConcreteCreator
+
+@enduml
