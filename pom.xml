@@ -13,7 +13,9 @@
         <module>learning-hbase</module>
         <module>learning-zk</module>
         <module>learning-netty</module>
-    </modules>
+        <module>learning-guava</module>
+		<module>learning-other</module>
+	</modules>
 
     <properties>
         <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
@@ -32,6 +34,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>22.0</version>
+            </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
