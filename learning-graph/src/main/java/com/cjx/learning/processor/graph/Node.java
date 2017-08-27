@@ -1,4 +1,4 @@
-package com.cjx.learning.executor.graph;
+package com.cjx.learning.processor.graph;
 
 import java.io.Serializable;
 import java.util.Set;

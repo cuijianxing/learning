@@ -1,4 +1,4 @@
-package com.cjx.learning.executor.task;
+package com.cjx.learning.processor.task;
 
 import java.io.Serializable;
 
@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author jianxing.cui
  * @since 25 八月 2017
  */
-public final class ExecutionResult<T, R> implements Serializable {
+public final class ProcessResult<T, R> implements Serializable {
 
 	public enum ResultStatus {
 		ERRORED, SKIPPED, SUCCESS
@@ -26,23 +26,23 @@ public final class ExecutionResult<T, R> implements Serializable {
 
 	private String message;
 
-	public ExecutionResult(final T id, final R result, final ResultStatus status) {
+	public ProcessResult(final T id, final R result, final ResultStatus status) {
 		this(id, result, status, EMPTY);
 	}
 
-	private ExecutionResult(final T id, final R result, final ResultStatus status, final String msg) {
+	private ProcessResult(final T id, final R result, final ResultStatus status, final String msg) {
 		this.id = id;
 		this.result = result;
 		this.status = status;
 		this.message = msg;
 	}
 
-	public static <T, R> ExecutionResult<T, R> success(final T id, final R result) {
-		return new ExecutionResult<T, R>(id, result, ResultStatus.SUCCESS, EMPTY);
+	public static <T, R> ProcessResult<T, R> success(final T id, final R result) {
+		return new ProcessResult<T, R>(id, result, ResultStatus.SUCCESS, EMPTY);
 	}
 
-	public static <T, R> ExecutionResult<T, R> errored(final T id, final R result, final String msg) {
-		return new ExecutionResult<T, R>(id, result, ResultStatus.ERRORED, msg);
+	public static <T, R> ProcessResult<T, R> errored(final T id, final R result, final String msg) {
+		return new ProcessResult<T, R>(id, result, ResultStatus.ERRORED, msg);
 	}
 
 	public T getId() {
@@ -98,7 +98,7 @@ public final class ExecutionResult<T, R> implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		@SuppressWarnings("unchecked")
-		ExecutionResult<T, R> other = (ExecutionResult<T, R>) obj;
+		ProcessResult<T, R> other = (ProcessResult<T, R>) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -110,6 +110,6 @@ public final class ExecutionResult<T, R> implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ExecutionResult [id=" + id + ", result=" + result + ", status=" + status + ", message=" + message + "]";
+		return "ProcessResult [id=" + id + ", result=" + result + ", status=" + status + ", message=" + message + "]";
 	}
 }

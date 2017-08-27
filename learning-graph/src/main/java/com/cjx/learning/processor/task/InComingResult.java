@@ -1,4 +1,4 @@
-package com.cjx.learning.executor.task;
+package com.cjx.learning.processor.task;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,13 +15,13 @@ public class InComingResult<T, R> implements Serializable {
 
 	private static final long serialVersionUID = 7852915543349745523L;
 
-	private List<ExecutionResult<T, R>> results = Lists.newArrayList();
+	private List<ProcessResult<T, R>> results = Lists.newArrayList();
 
-	public void add(final ExecutionResult<T, R> result) {
+	public void add(final ProcessResult<T, R> result) {
 		this.results.add(result);
 	}
 
-	public ExecutionResult<T, R> getFirst() {
+	public ProcessResult<T, R> getFirst() {
 		if (this.results.isEmpty()) {
 			return null;
 		}
@@ -35,14 +35,14 @@ public class InComingResult<T, R> implements Serializable {
 	}
 
 	public boolean anySkipped() {
-		return this.results.stream().anyMatch(ExecutionResult::isSkipped);
+		return this.results.stream().anyMatch(ProcessResult::isSkipped);
 	}
 
 	/**
 	 *
 	 * @return all result in the collection
 	 */
-	public List<ExecutionResult<T, R>> getAll() {
+	public List<ProcessResult<T, R>> getAll() {
 		return Lists.newArrayList(this.results);
 	}
 
