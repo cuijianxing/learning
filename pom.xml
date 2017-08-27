@@ -16,7 +16,8 @@
         <module>learning-netty</module>
         <module>learning-guava</module>
 		<module>learning-other</module>
-	</modules>
+        <module>learning-graph</module>
+    </modules>
 
     <properties>
         <maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
