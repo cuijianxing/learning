@@ -1,126 +1,88 @@
 package com.cjx.learning.processor.graph;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
+import java.util.*;
 
 /**
  * TODO completion javadoc.
  *
  * @author jianxing.cui
- * @since 26 八月 2017
+ * @since 28 八月 2017
  */
-public final class DefaultGraph<T extends Comparable<T>, R> implements Graph<T, R>, Serializable {
+public final class DefaultGraph implements Graph {
 
-	private static final long serialVersionUID = 6594997332184919578L;
+    private Map<Integer, Node> nodes = new LinkedHashMap<>();
 
-	private Map<T, Node<T, R>> nodes = Maps.newHashMap();
+    @Override
+    public Set<Node> getInitialNodes() {
+        Set<Node> initialNodes = new LinkedHashSet<>();
+        this.nodes.entrySet().stream()
+                .map(Map.Entry::getValue)
+                .filter(node -> node.getInComingNodes().isEmpty())
+                .forEach(initialNodes::add);
+        return initialNodes;
+    }
 
-	@Override
-	public int size() {
-		return this.nodes.size();
-	}
+    @Override
+    public Set<Node> getLeafNodes() {
+        Set<Node> leafNodes = new LinkedHashSet<>();
+        this.nodes.entrySet().stream()
+                .map(Map.Entry::getValue)
+                .filter(node -> node.getOutGoingNodes().isEmpty())
+                .forEach(leafNodes::add);
+        return leafNodes;
+    }
 
-	@Override
-	public Node<T, R> get(T id) {
-		return this.nodes.get(id);
-	}
+    @Override
+    public Node getNode(Integer id) {
+        return Optional.of(this.nodes.get(id)).get();
+    }
 
-	@Override
-	public Set<Node<T, R>> getInitialNodes() {
-		Set<Node<T, R>> initialNodes = new LinkedHashSet<>();
-		this.nodes.values().stream()
-				.filter(node -> CollectionUtils.isEmpty(node.getInComingNodes()))
-				.forEach(initialNodes::add);
-		return initialNodes;
-	}
+    @Override
+    public Set<Node> getOutGoingNodes(Integer id) {
+        return Optional.of(this.nodes.get(id)).get().getOutGoingNodes();
+    }
 
-	@Override
-	public Set<Node<T, R>> getLeafNodes() {
-		Set<Node<T, R>> leafNodes = new LinkedHashSet<>();
-		this.nodes.values().stream()
-				.filter(node -> CollectionUtils.isEmpty(node.getOutGoingNodes()))
-				.forEach(leafNodes::add);
-		return leafNodes;
-	}
+    @Override
+    public void addIndependent(Integer id) {
+        addOrGet(id);
+    }
 
-	@Override
-	public Collection<Node<T, R>> allNodes() {
-		return new ArrayList<>(this.nodes.values());
-	}
+    @Override
+    public void addDependency(Integer beforeId, Integer afterId) {
+        Node beforeNode = addOrGet(beforeId);
+        Node afterNode = addOrGet(afterId);
+        addEdges(beforeNode, afterNode);
+    }
 
-	@Override
-	public Set<Node<T, R>> getNonProcessedNodes() {
-		Set<Node<T, R>> result = new LinkedHashSet<>();
-		doFind(result, getInitialNodes());
-		return result;
-	}
+    @Override
+    public void addAsDependentOnAllLeafNodes(Integer id) {
+        this.getLeafNodes().forEach(node -> addEdges(node, addOrGet(id)));
+    }
 
-	private void doFind(final Set<Node<T, R>> result, final Set<Node<T, R>> nodes) {
-		nodes.stream().forEach(node -> {
-			if (node.isNotProcessed() && allParentProcessed(node.getInComingNodes())) {
-				result.add(node);
-			}
-			else if (allParentProcessed(node.getInComingNodes())) {
-				doFind(result, node.getOutGoingNodes());
-			}
-		});
-	}
+    @Override
+    public void addAsDependencyToAllInitialNodes(Integer id) {
+        this.getInitialNodes().forEach(node -> addEdges(addOrGet(id), node));
+    }
 
-	private boolean allParentProcessed(final Set<Node<T, R>> inComingNodes) {
-		return !inComingNodes.stream().anyMatch(Node::isNotProcessed);
-	}
+    private void addEdges(final Node beforeNode, final Node afterNode) {
+        if (!beforeNode.equals(afterNode)) {
+            beforeNode.addOutGoingNode(afterNode);
+            afterNode.addInComingNode(beforeNode);
+        }
+    }
 
-	@Override
-	public void addIndependent(T nodeValue) {
-		addOrGet(nodeValue);
-	}
+    private Node addOrGet(Integer id) {
+        Node graphNode;
+        if (this.nodes.containsKey(id)) {
+            graphNode = this.nodes.get(id);
+        } else {
+            graphNode = createNode(id);
+            this.nodes.put(id, graphNode);
+        }
+        return graphNode;
+    }
 
-	@Override
-	public void addDependency(T evalFirstValue, T evalAfterValue) {
-		Node<T, R> firstNode = addOrGet(evalFirstValue);
-		Node<T, R> afterNode = addOrGet(evalAfterValue);
-		addEdges(firstNode, afterNode);
-	}
-
-	@Override
-	public void addAsDependentOnAllLeafNodes(T nodeValue) {
-		Node<T, R> node = addOrGet(nodeValue);
-		getLeafNodes().stream().forEach(leafNode -> addEdges(leafNode, node));
-	}
-
-	@Override
-	public void addAsDependencyToAllInitialNodes(T nodeValue) {
-		Node<T, R> node = addOrGet(nodeValue);
-		getInitialNodes().stream().forEach(initialNode -> addEdges(node, initialNode));
-	}
-
-	private Node<T, R> addOrGet(final T nodeValue) {
-		Node<T, R> graphNode;
-		if (this.nodes.containsKey(nodeValue)) {
-			graphNode = this.nodes.get(nodeValue);
-		}
-		else {
-			graphNode = createNode(nodeValue);
-			this.nodes.put(nodeValue, graphNode);
-		}
-		return graphNode;
-	}
-
-	private Node<T, R> createNode(final T value) {
-		return new Node<>(value);
-	}
-
-	private void addEdges(final Node<T, R> firstNode, final Node<T, R> afterNode) {
-		if (!firstNode.equals(afterNode)) {
-			firstNode.addOutGoingNode(afterNode);
-			afterNode.addInComingNode(firstNode);
-		}
-	}
+    private Node createNode(Integer id) {
+        return new Node(id);
+    }
 }

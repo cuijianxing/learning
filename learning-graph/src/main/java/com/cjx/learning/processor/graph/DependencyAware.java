@@ -1,19 +1,12 @@
 package com.cjx.learning.processor.graph;
 
-/**
- * TODO completion javadoc.
- *
- * @author jianxing.cui
- * @since 25 八月 2017
- */
-public interface DependencyAware<T extends Comparable<T>> {
+public interface DependencyAware {
 
-	void addIndependent(final T nodeValue);
+    void addIndependent(Integer id);
 
-	void addDependency(final T evalFirstValue, final T evalAfterValue);
+    void addDependency(Integer beforeId, Integer afterId);
 
-	void addAsDependentOnAllLeafNodes(final T nodeValue);
+    void addAsDependentOnAllLeafNodes(Integer id);
 
-	void addAsDependencyToAllInitialNodes(final T nodeValue);
-
+    void addAsDependencyToAllInitialNodes(Integer id);
 }

@@ -1,26 +1,20 @@
 package com.cjx.learning.processor.graph;
 
-import java.util.Collection;
 import java.util.Set;
 
 /**
  * TODO completion javadoc.
  *
  * @author jianxing.cui
- * @since 25 八月 2017
+ * @since 28 八月 2017
  */
-public interface Graph<T extends Comparable<T>, R> extends DependencyAware<T> {
+public interface Graph extends DependencyAware {
 
-	int size();
+    Set<Node> getInitialNodes();
 
-	Node<T, R> get(final T id);
+    Set<Node> getLeafNodes();
 
-	Set<Node<T, R>> getInitialNodes();
+    Node getNode(Integer id);
 
-	Set<Node<T, R>> getLeafNodes();
-
-	Collection<Node<T, R>> allNodes();
-
-	Set<Node<T, R>> getNonProcessedNodes();
-
+    Set<Node> getOutGoingNodes(Integer id);
 }

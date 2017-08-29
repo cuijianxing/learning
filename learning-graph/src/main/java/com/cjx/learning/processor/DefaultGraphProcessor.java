@@ -1,77 +1,88 @@
 package com.cjx.learning.processor;
 
-import com.cjx.learning.processor.graph.Traversar;
-import com.cjx.learning.processor.graph.TraversarAction;
-import com.cjx.learning.processor.task.InComingResult;
+import com.cjx.learning.processor.graph.DefaultGraph;
+import com.cjx.learning.processor.graph.Graph;
+import com.cjx.learning.processor.graph.Node;
+import com.cjx.learning.processor.utils.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
  * TODO completion javadoc.
  *
  * @author jianxing.cui
- * @since 27 八月 2017
+ * @since 28 八月 2017
  */
-public class DefaultGraphProcessor<T extends Comparable<T>,R> implements GraphProcessor<T,R> {
+public class DefaultGraphProcessor<I, O> implements GraphProcessor<I, O> {
 
-	@Override
-	public void process(ProcessContext context) {
+    private static final Logger logger = LoggerFactory.getLogger(DefaultGraphProcessor.class);
 
-	}
+    private Graph graph = new DefaultGraph();
+    private ProcessEngine processEngine;
+    private ProcessorRegister processorRegister;
 
-	public InComingResult<T, R> execute(ProcessStrategy config) {
-		validate(config);
+    public DefaultGraphProcessor(ExecutorService executorService, ProcessorRegister register) {
+        Preconditions.checkNotNull(executorService, "executorService must not be null");
+        Preconditions.checkNotNull(register, "register must not be null");
+        this.processEngine = new DefaultProcessEngine(executorService);
+        this.processorRegister = register;
+    }
 
-		this.state.setCurrentPhase(Phase.RUNNING);
+    @Override
+    public void process(I input, O output) {
+        ProcessContext<I, O> context = ProcessContext.of(input, output);
+        this.startProcess(context);
+    }
 
-		Set<Node<T, R>> initialNodes = this.state.getInitialNodes();
+    @Override
+    public void addIndependent(Integer id) {
+        this.graph.addIndependent(id);
+    }
 
-		long start = new Date().getTime();
+    @Override
+    public void addDependency(Integer beforeId, Integer afterId) {
+        this.graph.addDependency(beforeId, afterId);
+    }
 
-		doProcessNodes(config, initialNodes);
-		shutdownExecutors();
+    @Override
+    public void addAsDependentOnAllLeafNodes(Integer id) {
+        this.addAsDependentOnAllLeafNodes(id);
+    }
 
-		long end = new Date().getTime();
+    @Override
+    public void addAsDependencyToAllInitialNodes(Integer id) {
+        this.addAsDependencyToAllInitialNodes(id);
+    }
 
-		this.state.setCurrentPhase(Phase.TERMINATED);
+    private void startProcess(ProcessContext<I, O> context) {
+        Set<Node> initialNodes = graph.getInitialNodes();
+        ProcessState state = new ProcessState(context);
+        this.doProcess(state, initialNodes);
+        this.waitProcessingNodesDone(state);
+    }
 
-		logger.debug("Total Time taken to process {} jobs is {} ms.", this.state.graphSize(), end - start);
-		logger.debug("Processed Nodes Ordering {}", this.state.getProcessedNodes());
+    private void doProcess(ProcessState state, Set<Node> nodes) {
+        for (Node node : nodes) {
+            if (state.shouldProcess(node)) {
+                Processor<I, O> processor = processorRegister.retrieve(node.getId());
+                state.incrementProcessingNodesCount();
+                processEngine.submit(Job.newJob(processor, state.getContext()));
+            } else {
+                logger.info("node is not ready for process [{}][{}]", node, node.getInComingNodes());
+            }
+        }
+    }
 
-		return this.state.getErrored();
-	}
+    private void waitProcessingNodesDone(ProcessState state) {
+        while (state.getProcessingNodesCount() > 0) {
+            Integer completeNodeId = processEngine.processComplete();
+            state.decrementProcessingNodesCount();
+            state.markProcessingDone(graph.getNode(completeNodeId));
+            this.doProcess(state, graph.getOutGoingNodes(completeNodeId));
+        }
+    }
 
-	@Override
-	public void recoverExecution(ProcessStrategy config) {
-
-	}
-
-	@Override
-	public void print(Traversar<T, R> traversar, TraversarAction<T, R> action) {
-
-	}
-
-	@Override
-	public void addIndependent(T nodeValue) {
-
-	}
-
-	@Override
-	public void addDependency(T evalFirstValue, T evalAfterValue) {
-
-	}
-
-	@Override
-	public void addAsDependentOnAllLeafNodes(T nodeValue) {
-
-	}
-
-	@Override
-	public void addAsDependencyToAllInitialNodes(T nodeValue) {
-
-	}
-
-	private void validate(final ProcessStrategy config) {
-		config.validate();
-		checkValidPhase();
-		this.state.validate(this.validator);
-	}
 }

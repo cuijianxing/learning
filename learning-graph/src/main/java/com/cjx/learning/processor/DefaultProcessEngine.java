@@ -1,54 +1,37 @@
 package com.cjx.learning.processor;
 
-import static com.github.dexecutor.core.support.Preconditions.checkNotNull;
+import com.cjx.learning.processor.utils.Preconditions;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-
-import com.cjx.learning.processor.task.ProcessResult;
-import com.cjx.learning.processor.task.Task;
 
 /**
  * TODO completion javadoc.
  *
  * @author jianxing.cui
- * @since 27 八月 2017
+ * @since 28 八月 2017
  */
-public final class DefaultProcessEngine<T extends Comparable<T>, R> implements ProcessEngine<T, R> {
+public class DefaultProcessEngine<I, O> implements ProcessEngine<I, O> {
 
+    private CompletionService<Integer> completionService;
 
-	private final CompletionService<ProcessResult<T, R>> completionService;
+    public DefaultProcessEngine(ExecutorService executorService) {
+        Preconditions.checkNotNull(executorService, "executorService must not be null");
+        completionService = new ExecutorCompletionService<>(executorService);
+    }
 
-	public DefaultProcessEngine(final ExecutorService executorService) {
-		checkNotNull(executorService, "Executer Service should not be null");
-		this.completionService = new ExecutorCompletionService<>(executorService);
-	}
+    @Override
+    public void submit(Job<I, O> job) {
+        completionService.submit(job);
+    }
 
-	@Override
-	public void process(Task<T, R> task) {
-		this.completionService.submit(newCallable(task));
-	}
-
-	@Override
-	public ProcessResult<T, R> processResult() throws InterruptedException, ExecutionException {
-		return this.completionService.take().get();
-	}
-
-	private Callable<ProcessResult<T, R>> newCallable(final Task<T, R> task) {
-		return () -> {
-			R r = null;
-			ProcessResult<T, R> result;
-			try {
-				r = task.execute();
-				result = ProcessResult.success(task.getId(), r);
-			}
-			catch (Exception e) {
-				result = ProcessResult.errored(task.getId(), r, e.getMessage());
-			}
-			return result;
-		};
-	}
+    @Override
+    public Integer processComplete() {
+        try {
+            return completionService.take().get();
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
 }

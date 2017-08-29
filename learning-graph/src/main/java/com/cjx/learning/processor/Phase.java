@@ -14,18 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.cjx.learning.processor;
 
-package com.cjx.learning.processor.task;
-
-import com.github.dexecutor.core.task.Task;
-
-/**
- * TODO completion javadoc.
- *
- * @author jianxing.cui
- * @since 27 八月 2017
- */
-public interface TaskProvider<T extends Comparable<T>, R> {
-
-	Task<T, R> provideTask(final T id);
+public enum Phase {
+    BUILDING, RUNNING, TERMINATED;
 }

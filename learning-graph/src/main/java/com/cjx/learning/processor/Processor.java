@@ -6,10 +6,10 @@ package com.cjx.learning.processor;
  * @author jianxing.cui
  * @since 28 八月 2017
  */
-public interface ProcessEngine<I, O> {
+public interface Processor<I, O> {
 
-    void submit(Job<I, O> job);
+    Integer getId();
 
-    Integer processComplete();
+    void process(ProcessContext<I, O> context);
 
 }

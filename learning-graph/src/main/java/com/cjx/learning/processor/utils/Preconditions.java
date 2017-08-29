@@ -15,15 +15,23 @@
  * limitations under the License.
  */
 
-package com.cjx.learning.processor.graph;
+package com.cjx.learning.processor.utils;
 
-/**
- * TODO completion javadoc.
- *
- * @author jianxing.cui
- * @since 27 八月 2017
- */
-public interface Validator<T extends Comparable<T>, R> {
+public final class Preconditions {
 
-	void validate(final Graph<T, R> graph);
+    private Preconditions() {
+
+    }
+
+    public static <T> void checkNotNull(final T reference, final String msg) {
+        if (reference == null) {
+            throw new IllegalArgumentException(msg);
+        }
+    }
+
+    public static void checkArgument(boolean expression, final String errorMessage) {
+        if (!expression) {
+            throw new IllegalArgumentException(String.valueOf(errorMessage));
+        }
+    }
 }
