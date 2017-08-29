@@ -1,0 +1,7 @@
+@startuml
+client -> Creator: anOperation()
+Creator -> ConcreteCreator: factoryMethod()
+ConcreteCreator --> ConcreteProduct: new ConcreteProduct()
+Creator <-- ConcreteCreator
+client <-- Creator
+@enduml
