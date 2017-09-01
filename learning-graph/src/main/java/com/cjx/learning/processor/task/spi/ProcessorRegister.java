@@ -1,13 +1,13 @@
-package com.cjx.learning.processor;
+package com.cjx.learning.processor.task.spi;
 
 /**
- * TODO completion javadoc.
+ * SPI
  *
  * @author jianxing.cui
  * @since 28 八月 2017
  */
 public interface ProcessorRegister<I, O> {
 
-    Processor<I, O> retrieve(Integer id);
+    ContextProcessor<I, O> retrieve(Integer id);
 
 }

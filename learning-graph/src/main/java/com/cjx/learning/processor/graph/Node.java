@@ -1,12 +1,12 @@
 package com.cjx.learning.processor.graph;
 
-import com.cjx.learning.processor.utils.Preconditions;
+import com.google.common.base.Preconditions;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * TODO completion javadoc.
+ * 图节点
  *
  * @author jianxing.cui
  * @since 28 八月 2017
@@ -20,7 +20,7 @@ public class Node {
     private Set<Node> outGoingEdges = new LinkedHashSet<>();
 
     public Node(Integer id) {
-        Preconditions.checkNotNull(id, "id must not be null");
+        Preconditions.checkArgument(id != null);
         this.id = id;
     }
 

@@ -1,7 +1,10 @@
-package com.cjx.learning.processor;
+package com.cjx.learning.processor.task;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
- * TODO completion javadoc.
+ * 请求上下文
  *
  * @author jianxing.cui
  * @since 28 八月 2017
@@ -11,6 +14,8 @@ public class ProcessContext<I, O> {
     private final I input;
 
     private final O output;
+
+    private ConcurrentMap<String, Object> dataHolder = new ConcurrentHashMap<>();
 
     public static <I, O> ProcessContext<I, O> of(I input, O output) {
         return new ProcessContext<>(input, output);
@@ -29,4 +34,11 @@ public class ProcessContext<I, O> {
         return output;
     }
 
+    public void addData(String key, Object data) {
+        this.dataHolder.put(key, data);
+    }
+
+    public Object getData(String key) {
+        return dataHolder.get(key);
+    }
 }

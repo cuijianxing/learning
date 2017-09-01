@@ -1,7 +1,8 @@
 package com.cjx.learning.processor;
 
+import com.google.common.base.Preconditions;
 import com.cjx.learning.processor.graph.Node;
-import com.cjx.learning.processor.utils.Preconditions;
+import com.cjx.learning.processor.task.ProcessContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,32 +11,23 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * TODO completion javadoc.
+ * 标识每一个任务的执行状态
+ * 线程间共享
  *
  * @author jianxing.cui
  * @since 28 八月 2017
  */
 public final class ProcessState {
 
-    private Phase currentPhase;
     private final ProcessContext context;
     private final AtomicInteger processingNodesCount;
     private final Collection<Node> processedNodes;
 
     public ProcessState(ProcessContext context) {
-        Preconditions.checkNotNull(context, "context must not be null");
-        this.currentPhase = Phase.BUILDING;
+        Preconditions.checkArgument(context != null);
         this.context = context;
         this.processingNodesCount = new AtomicInteger(0);
         this.processedNodes = new CopyOnWriteArrayList<>();
-    }
-
-    public void setCurrentPhase(final Phase currentPhase) {
-        this.currentPhase = currentPhase;
-    }
-
-    public Phase getCurrentPhase() {
-        return this.currentPhase;
     }
 
     public ProcessContext getContext() {

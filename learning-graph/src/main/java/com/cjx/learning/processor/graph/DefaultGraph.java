@@ -1,9 +1,11 @@
 package com.cjx.learning.processor.graph;
 
+import com.google.common.base.Preconditions;
+
 import java.util.*;
 
 /**
- * TODO completion javadoc.
+ * 图默认实现类
  *
  * @author jianxing.cui
  * @since 28 八月 2017
@@ -11,6 +13,18 @@ import java.util.*;
 public final class DefaultGraph implements Graph {
 
     private Map<Integer, Node> nodes = new LinkedHashMap<>();
+
+    private Validator validator;
+
+    public DefaultGraph(final Validator validator) {
+        Preconditions.checkArgument(validator != null);
+        this.validator = validator;
+    }
+
+    @Override
+    public void validate() {
+        this.validator.validate(this);
+    }
 
     @Override
     public Set<Node> getInitialNodes() {
@@ -40,6 +54,11 @@ public final class DefaultGraph implements Graph {
     @Override
     public Set<Node> getOutGoingNodes(Integer id) {
         return Optional.of(this.nodes.get(id)).get().getOutGoingNodes();
+    }
+
+    @Override
+    public Collection<Node> getAllNodes() {
+        return this.nodes.values();
     }
 
     @Override
@@ -84,5 +103,37 @@ public final class DefaultGraph implements Graph {
 
     private Node createNode(Integer id) {
         return new Node(id);
+    }
+
+    public static class Builder {
+        private Graph graph;
+
+        public Builder(Validator validator) {
+            this.graph = new DefaultGraph(validator);
+        }
+
+        public Builder addIndependent(Integer id) {
+            this.graph.addIndependent(id);
+            return this;
+        }
+
+        public Builder addDependency(Integer beforeId, Integer afterId) {
+            this.graph.addDependency(beforeId, afterId);
+            return this;
+        }
+
+        public Builder addAsDependentOnAllLeafNodes(Integer id) {
+            this.graph.addAsDependentOnAllLeafNodes(id);
+            return this;
+        }
+
+        public Builder addAsDependencyToAllInitialNodes(Integer id) {
+            this.graph.addAsDependencyToAllInitialNodes(id);
+            return this;
+        }
+
+        public Graph create() {
+            return graph;
+        }
     }
 }
